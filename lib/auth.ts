@@ -5,9 +5,11 @@ type Session = { userId: string; expiresAt: number };
 
 const users = new Map<string, User>();
 const sessions = new Map<string, Session>();
-const secret = process.env.AUTH_SECRET || (process.env.NODE_ENV === "production" ? (() => { throw new Error("AUTH_SECRET must be configured in production."); })() : "development-only-change-me");
 
-function digest(value: string) { return createHash("sha256").update(`${secret}:${value}`).digest("hex"); }
+function digest(value: string) {
+    const secret = process.env.AUTH_SECRET || (process.env.NODE_ENV === "production" ? (() => { throw new Error("AUTH_SECRET must be configured in production."); })() : "development-only-change-me");
+    return createHash("sha256").update(`${secret}:${value}`).digest("hex");
+}
 function createToken() { return randomBytes(32).toString("base64url"); }
 function expiresAt() { return new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); }
 
