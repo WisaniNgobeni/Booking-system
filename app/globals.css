@@ -1598,3 +1598,73 @@ button {
     letter-spacing: -.07em;
     line-height: 1;
 }
+
+.settings-form {
+    max-width: 760px;
+    display: grid;
+    gap: 16px;
+}
+
+.settings-form label {
+    display: grid;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.settings-form input,
+.settings-form textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 13px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    font-size: 13px;
+}
+
+.settings-form textarea {
+    resize: vertical;
+}
+
+.settings-form small,
+.form-help {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.form-success {
+    color: #2d6a43;
+    font-size: 13px;
+}
+
+.availability-form {
+    max-width: 760px;
+}
+
+.hours-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+}
+
+.hours-row input[type="time"] {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px;
+    font: inherit;
+}
+
+.day-toggle {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13px;
+    font-weight: 700;
+}
