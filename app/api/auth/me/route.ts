@@ -1,0 +1,3 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getUserFromSession } from "../../../../lib/auth";
+export async function GET(request: NextRequest) { const user = await getUserFromSession(request.cookies.get("tandem_session")?.value); return user ? NextResponse.json({ user: { id: user.id, name: user.name, email: user.email } }) : NextResponse.json({ error: "Authentication required." }, { status: 401 }); }

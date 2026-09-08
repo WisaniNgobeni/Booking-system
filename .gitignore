@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# Prisma generated client and native engines are recreated by npm run db:generate.
+generated/prisma/

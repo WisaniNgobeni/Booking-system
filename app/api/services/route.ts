@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server";
+import { getCurrentTenant } from "../../../lib/tenant";
+export async function GET() { const tenant = await getCurrentTenant(); if (!tenant) return NextResponse.json({ error: "Authentication required." }, { status: 401 }); if (!process.env.DATABASE_URL) return NextResponse.json({ error: "Persistent storage is required." }, { status: 503 }); const { prisma } = await import("../../../lib/database"); const services = await prisma.service.findMany({ where: { organizationId: tenant.organizationId, deletedAt: null }, include: { _count: { select: { appointments: true } } }, orderBy: { name: "asc" } }); return NextResponse.json({ services }); }

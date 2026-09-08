@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { ArrowLeft, ArrowUpRight, Clock3 } from "lucide-react";
+import { services } from "../../../lib/demo-data";
+export default function ServicesPage() { return <main className="main"><div className="dash-head"><div><Link className="mono" href="/dashboard"><ArrowLeft size={13} /> Overview</Link><h1>Services</h1></div><Link className="button dark" href="/book/studio-moya">Preview booking page <ArrowUpRight size={15} /></Link></div><section className="cards">{services.map((service) => <article className="feature" key={service.name}><Clock3 size={20} /><h3>{service.name}</h3><p>{service.detail}</p><strong>{service.price} · {service.duration}</strong></article>)}</section></main>; }
