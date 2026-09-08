@@ -1,0 +1,14 @@
+"use client";
+import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, Plus, Trash2, Users } from "lucide-react";
+
+type Staff = { id: string; name: string; email?: string | null; phone?: string | null; active: boolean };
+
+export default function StaffPage() {
+    const [staff, setStaff] = useState<Staff[]>([]); const [form, setForm] = useState({ name: "", email: "", phone: "" }); const [error, setError] = useState("");
+    useEffect(() => { void fetch("/api/staff").then(async (response) => { const result = await response.json(); if (response.ok) setStaff(result.staff); else setError(result.error); }); }, []);
+    async function add(event: FormEvent) { event.preventDefault(); const response = await fetch("/api/staff", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) }); const result = await response.json(); if (!response.ok) { setError(result.error); return; } setStaff((current) => [...current, result.staff]); setForm({ name: "", email: "", phone: "" }); }
+    async function remove(id: string) { const response = await fetch(`/api/staff?id=${id}`, { method: "DELETE" }); if (response.ok) setStaff((current) => current.filter((member) => member.id !== id)); }
+    return <main className="main"><div className="dash-head"><div><Link className="mono" href="/dashboard"><ArrowLeft size={13} /> Overview</Link><h1>Staff</h1></div></div><section className="content-grid"><form className="panel service-form" onSubmit={add}><div className="panel-head"><h2>Add staff member</h2><Plus size={17} /></div><input placeholder="Full name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /><input type="email" placeholder="Email (optional)" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /><input placeholder="Phone (optional)" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />{error && <p className="form-error">{error}</p>}<button className="button dark" type="submit">Add staff <Plus size={15} /></button></form><section className="panel"><div className="panel-head"><h2>Your team</h2><span className="mono">{staff.length} members</span></div>{staff.length === 0 ? <p style={{ color: "var(--muted)" }}>Add team members to manage shared availability.</p> : staff.map((member) => <div className="appointment" key={member.id}><div className="avatar"><Users size={14} /></div><div><b>{member.name}</b><small>{member.email || member.phone || "Team member"}</small></div><button className="icon-button" title={`Remove ${member.name}`} aria-label={`Remove ${member.name}`} onClick={() => void remove(member.id)}><Trash2 size={15} /></button></div>)}</section></section></main>;
+}

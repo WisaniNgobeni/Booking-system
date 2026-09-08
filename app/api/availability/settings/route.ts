@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentTenant } from "../../../../lib/tenant";
+import { canManageBusiness } from "../../../../lib/security";
 
 const defaultHours = Array.from({ length: 7 }, (_, weekday) => ({ weekday, startMinutes: 9 * 60, endMinutes: 17 * 60, enabled: weekday > 0 && weekday < 6 }));
 
@@ -15,6 +16,7 @@ export async function GET() {
 export async function PUT(request: Request) {
     const tenant = await getCurrentTenant();
     if (!tenant) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+    if (!canManageBusiness(tenant.role)) return NextResponse.json({ error: "Business management permission required." }, { status: 403 });
     if (!process.env.DATABASE_URL) return NextResponse.json({ error: "Persistent storage is required." }, { status: 503 });
     const body = await request.json();
     if (!Array.isArray(body?.hours) || body.hours.length !== 7) return NextResponse.json({ error: "Provide seven days of hours." }, { status: 400 });

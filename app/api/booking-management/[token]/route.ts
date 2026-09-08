@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { getAvailableSlots, getDevelopmentBooking, parseBookingDateTime, updateDevelopmentBooking } from "../../../../lib/booking";
+import { rateLimit, requestAddress } from "../../../../lib/security";
 
 type Context = { params: Promise<{ token: string }> };
 
 export async function GET(_: Request, context: Context) {
+    const limited = rateLimit(`manage:${requestAddress(_)}`, 30, 60 * 60_000);
+    if (limited) return limited;
     const { token } = await context.params;
     if (!process.env.DATABASE_URL) {
         if (process.env.NODE_ENV === "production") return NextResponse.json({ error: "Booking service is not configured." }, { status: 503 });
@@ -16,6 +19,8 @@ export async function GET(_: Request, context: Context) {
 }
 
 export async function PATCH(request: Request, context: Context) {
+    const limited = rateLimit(`manage:${requestAddress(request)}`, 15, 60 * 60_000);
+    if (limited) return limited;
     const { token } = await context.params;
     const body = await request.json();
     if (!body || !["CANCELLED", "RESCHEDULED"].includes(body.action)) return NextResponse.json({ error: "Invalid booking action." }, { status: 400 });

@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { getUserFromSession } from "./auth";
 
 export async function getCurrentTenant() {
-    const token = (await cookies()).get("tandem_session")?.value;
+    const token = (await cookies()).get("smallbean_session")?.value;
     const user = await getUserFromSession(token);
     if (!user) return null;
     if (!process.env.DATABASE_URL) return { user, organizationId: "demo-studio-moya", role: "OWNER" as const };

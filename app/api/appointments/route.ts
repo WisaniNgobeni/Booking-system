@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentTenant } from "../../../lib/tenant";
+import { canManageBusiness } from "../../../lib/security";
 
 export async function GET() {
     const tenant = await getCurrentTenant();
@@ -13,6 +14,7 @@ export async function GET() {
 export async function PATCH(request: Request) {
     const tenant = await getCurrentTenant();
     if (!tenant) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+    if (!canManageBusiness(tenant.role)) return NextResponse.json({ error: "Appointment management permission required." }, { status: 403 });
     if (!process.env.DATABASE_URL) return NextResponse.json({ error: "Persistent storage is required for appointment updates." }, { status: 503 });
     const body = await request.json();
     if (typeof body?.id !== "string" || !["CONFIRMED", "COMPLETED", "CANCELLED", "NO_SHOW"].includes(body.status)) return NextResponse.json({ error: "Invalid appointment update." }, { status: 400 });

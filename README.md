@@ -36,4 +36,6 @@ npm start
 
 After deployment, check `/api/health`. It should return `{"ok":true,"database":"connected"}`.
 
+To deliver booking confirmation emails, configure `EMAIL_PROVIDER_KEY` and `EMAIL_FROM`, then call `POST /api/notifications/process` periodically with `Authorization: Bearer CRON_SECRET` from a trusted scheduler.
+
 The public booking flow validates contact details, booking windows, working hours, time off, and conflicts. Customer management links enforce cancellation and rescheduling policy. Before first deployment, create and review the initial Prisma migration for the target database, configure email delivery for queued notifications, and verify backups, monitoring, rate limiting, and HTTPS at the hosting layer.

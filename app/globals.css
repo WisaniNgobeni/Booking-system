@@ -517,6 +517,67 @@ button {
     gap: 18px;
 }
 
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(130px, 1fr));
+    gap: 10px;
+    overflow-x: auto;
+    margin-bottom: 24px;
+}
+
+.calendar-day {
+    min-height: 240px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.calendar-day-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+.calendar-day-head strong {
+    font-size: 22px;
+}
+
+.calendar-empty {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+    margin-top: 42px;
+}
+
+.calendar-event {
+    display: grid;
+    gap: 5px;
+    background: var(--sage);
+    border-radius: 9px;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 11px;
+}
+
+.calendar-event time,
+.calendar-event small {
+    color: var(--muted);
+}
+
+.calendar-event select {
+    border: 0;
+    background: transparent;
+    font-size: 10px;
+    padding: 0;
+}
+
+.calendar-list {
+    margin-top: 12px;
+}
+
 .panel {
     background: var(--surface);
     border: 1px solid var(--line);

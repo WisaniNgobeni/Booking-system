@@ -11,3 +11,10 @@ test("booking validation rejects malformed dates and oversized contact details",
     assert.throws(() => validateBooking({ businessSlug: "studio", service: "Cut", date: "2026-02-30", time: "09:00", name: "A", email: "a@example.com", phone: "1" }), /valid date and time/);
     assert.throws(() => validateBooking({ businessSlug: "studio", service: "Cut", date: "2026-09-10", time: "09:00", name: "A".repeat(121), email: "a@example.com", phone: "1" }), /too long/);
 });
+
+test("security rate limit blocks requests after the configured threshold", async () => {
+    const { checkRateLimit } = await import("../lib/rate-limit.ts");
+    const key = `test-${Date.now()}`;
+    assert.equal(checkRateLimit(key, 1, 60_000), null);
+    assert.ok((checkRateLimit(key, 1, 60_000) ?? 0) >= 59);
+});
