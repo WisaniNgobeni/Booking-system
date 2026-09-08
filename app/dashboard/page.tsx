@@ -1,89 +1,13 @@
 import Link from "next/link";
-import { CalendarDays, ChartNoAxesColumn, Clock3, LayoutDashboard, Settings, Users, Scissors, Plus, ArrowUpRight } from "lucide-react";
-import { appointments } from "../../lib/demo-data";
+import { ArrowUpRight, CalendarDays, ChartNoAxesColumn, Clock3, Copy, LayoutDashboard, Scissors, Settings, Share2, Users } from "lucide-react";
+import { getCurrentTenant } from "../../lib/tenant";
 
-const links = [["Overview", LayoutDashboard], ["Calendar", CalendarDays], ["Appointments", Clock3], ["Customers", Users], ["Services", Scissors], ["Analytics", ChartNoAxesColumn], ["Settings", Settings]] as const;
+const links = [["Overview", LayoutDashboard, "/dashboard"], ["Calendar", CalendarDays, "/dashboard/appointments"], ["Bookings", Clock3, "/dashboard/appointments"], ["Customers", Users, "/dashboard/customers"], ["Services", Scissors, "/dashboard/services"], ["Analytics", ChartNoAxesColumn, "/dashboard"], ["Settings", Settings, "/dashboard"]] as const;
 
-export default function Dashboard() {
-    return (
-        <div className="dashboard">
-            <aside className="sidebar">
-                <Link href="/" className="brand">PRECIOUS<span> BARBER</span></Link>
-                {links.map(([label, Icon], index) => (
-                    <Link className={`side-link ${index === 0 ? "active" : ""}`} href={index === 1 ? "/book/studio-moya" : "/dashboard"} key={label}>
-                        <Icon size={16} />
-                        <span>{label}</span>
-                    </Link>
-                ))}
-            </aside>
-
-            <main className="main">
-                <div className="dash-head">
-                    <div>
-                        <div className="mono eyebrow">Wednesday, 26 August 2026</div>
-                        <h1>Good morning, Precious.</h1>
-                    </div>
-                    <button className="button dark"><Plus size={16} /><span>New appointment</span></button>
-                </div>
-
-                <div className="stats">
-                    <div className="stat">
-                        <span className="mono">Today</span>
-                        <strong>8</strong>
-                        <small><span className="up">+2 </span>from last Wednesday</small>
-                    </div>
-                    <div className="stat">
-                        <span className="mono">This month</span>
-                        <strong>R18.4k</strong>
-                        <small><span className="up">+12.8% </span>vs last month</small>
-                    </div>
-                    <div className="stat">
-                        <span className="mono">New customers</span>
-                        <strong>24</strong>
-                        <small><span className="up">+6 </span>this month</small>
-                    </div>
-                    <div className="stat">
-                        <span className="mono">Fill rate</span>
-                        <strong>72%</strong>
-                        <small>Across all services</small>
-                    </div>
-                </div>
-
-                <div className="content-grid">
-                    <section className="panel">
-                        <div className="panel-head">
-                            <h2>Today’s appointments</h2>
-                            <Link className="mono" href="/dashboard">View calendar <ArrowUpRight size={13} /></Link>
-                        </div>
-                        {appointments.map((item) => (
-                            <div className="appointment" key={item.time}>
-                                <time>{item.time}</time>
-                                <div className="avatar">{item.initials}</div>
-                                <div>
-                                    <b>{item.name}</b>
-                                    <small>{item.service}</small>
-                                </div>
-                                <span className={`status ${item.status === "Pending" ? "pending" : ""}`}>{item.status}</span>
-                            </div>
-                        ))}
-                    </section>
-
-                    <aside className="panel">
-                        <div className="panel-head">
-                            <h2>Setup progress</h2>
-                            <span className="mono">72%</span>
-                        </div>
-                        <p style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.6 }}>Your booking page is looking sharp. Finish these final details to keep the studio fully live.</p>
-                        <div className="progress"><i /></div>
-                        <ul className="checklist">
-                            <li>Branding and contact details</li>
-                            <li>Service menu and pricing</li>
-                            <li>Opening hours and policy</li>
-                            <li>Review and publish</li>
-                        </ul>
-                    </aside>
-                </div>
-            </main>
-        </div>
-    );
+export default async function Dashboard() {
+    const tenant = await getCurrentTenant();
+    let businessName = "Your business"; let slug = "your-business"; let appointments: { id: string; startsAt: Date; status: string; customer: { name: string }; service: { name: string } }[] = [];
+    if (tenant && process.env.DATABASE_URL) { const { prisma } = await import("../../lib/database"); const organization = await prisma.organization.findUnique({ where: { id: tenant.organizationId }, select: { name: true, slug: true, appointments: { where: { status: { in: ["PENDING", "CONFIRMED", "RESCHEDULED"] } }, include: { customer: { select: { name: true } }, service: { select: { name: true } } }, orderBy: { startsAt: "asc" }, take: 5 } } }); if (organization) { businessName = organization.name; slug = organization.slug; appointments = organization.appointments; } }
+    const firstName = tenant?.user.name.split(" ")[0] || "there";
+    return <div className="dashboard"><aside className="sidebar"><Link href="/" className="brand">smallbean<span>·</span></Link>{links.map(([label, Icon, href], index) => <Link className={`side-link ${index === 0 ? "active" : ""}`} href={href} key={label}><Icon size={16} /><span>{label}</span></Link>)}</aside><main className="main"><div className="dash-head"><div><div className="mono eyebrow">Business workspace</div><h1>Good morning, {firstName}.</h1></div><Link className="button dark" href={`/book/${slug}`}>Preview booking page <ArrowUpRight size={15} /></Link></div><div className="stats"><div className="stat"><span className="mono">Upcoming bookings</span><strong>{appointments.length}</strong><small>Across your workspace</small></div><div className="stat"><span className="mono">Business link</span><strong>1</strong><small>Ready to share</small></div><div className="stat"><span className="mono">Services</span><strong>Live</strong><small>Manage your offering</small></div><div className="stat"><span className="mono">Customers</span><strong>CRM</strong><small>Every relationship in one place</small></div></div><section className="link-panel"><div><p className="mono eyebrow">Your Smallbean booking link</p><h2>smallbean.co.za/{slug}</h2><p>Share this link in your Instagram, TikTok, Facebook, and WhatsApp profiles.</p></div><div className="actions"><button className="button light"><Copy size={15} /> Copy link</button><button className="button dark"><Share2 size={15} /> Share</button></div></section><div className="content-grid"><section className="panel"><div className="panel-head"><h2>Upcoming bookings</h2><Link className="mono" href="/dashboard/appointments">View all <ArrowUpRight size={13} /></Link></div>{appointments.length === 0 ? <p style={{ color: "var(--muted)" }}>Your confirmed bookings will appear here.</p> : appointments.map((item) => <div className="appointment" key={item.id}><time>{item.startsAt.toLocaleString("en-ZA", { dateStyle: "medium", timeStyle: "short" })}</time><div className="avatar">{item.customer.name.slice(0, 2).toUpperCase()}</div><div><b>{item.customer.name}</b><small>{item.service.name}</small></div><span className="status">{item.status}</span></div>)}</section><aside className="panel"><div className="panel-head"><h2>Get ready</h2><span className="mono">Smallbean</span></div><p style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.6 }}>Complete your profile, add services, and set your hours before sharing your booking link.</p><ul className="checklist"><li>Business profile</li><li>Services and prices</li><li>Opening hours</li><li>Share your link</li></ul></aside></div></main></div>;
 }
