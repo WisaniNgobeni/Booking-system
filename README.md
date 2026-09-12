@@ -38,4 +38,6 @@ After deployment, check `/api/health`. It should return `{"ok":true,"database":"
 
 To deliver booking confirmation emails, configure `EMAIL_PROVIDER_KEY` and `EMAIL_FROM`, then call `POST /api/notifications/process` periodically with `Authorization: Bearer CRON_SECRET` from a trusted scheduler.
 
+For SaaS billing, configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO`, and `STRIPE_PRICE_BUSINESS`. Register `POST /api/billing/webhook` in Stripe, enable the customer portal, and use the authenticated checkout and portal endpoints from the dashboard billing UI.
+
 The public booking flow validates contact details, booking windows, working hours, time off, and conflicts. Customer management links enforce cancellation and rescheduling policy. Before first deployment, create and review the initial Prisma migration for the target database, configure email delivery for queued notifications, and verify backups, monitoring, rate limiting, and HTTPS at the hosting layer.

@@ -3,7 +3,7 @@ import { ArrowUpRight, CalendarDays, ChartNoAxesColumn, Clock3, Copy, LayoutDash
 import { getCurrentTenant } from "../../lib/tenant";
 import LinkActions from "./link-actions";
 
-const links = [["Overview", LayoutDashboard, "/dashboard"], ["Calendar", CalendarDays, "/dashboard/appointments"], ["Bookings", Clock3, "/dashboard/appointments"], ["Customers", Users, "/dashboard/customers"], ["Services", Scissors, "/dashboard/services"], ["Staff", Users, "/dashboard/staff"], ["Availability", Clock3, "/dashboard/availability"], ["Time off", CalendarDays, "/dashboard/time-off"], ["Business profile", Settings, "/dashboard/profile"], ["Analytics", ChartNoAxesColumn, "/dashboard"]] as const;
+const links = [["Overview", LayoutDashboard, "/dashboard"], ["Calendar", CalendarDays, "/dashboard/appointments"], ["Bookings", Clock3, "/dashboard/appointments"], ["Customers", Users, "/dashboard/customers"], ["Services", Scissors, "/dashboard/services"], ["Staff", Users, "/dashboard/staff"], ["Availability", Clock3, "/dashboard/availability"], ["Time off", CalendarDays, "/dashboard/time-off"], ["Business profile", Settings, "/dashboard/profile"], ["Analytics", ChartNoAxesColumn, "/dashboard/analytics"]] as const;
 
 export default async function Dashboard() {
     const tenant = await getCurrentTenant();

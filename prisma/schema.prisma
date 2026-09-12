@@ -23,6 +23,7 @@ enum AppointmentStatus {
 }
 enum NotificationStatus {
   QUEUED
+  PROCESSING
   SENT
   FAILED
 }
@@ -44,6 +45,7 @@ model User {
   memberships OrganizationMember[]
   auditLogs AuditLog[]
   sessions Session[]
+  authTokens AuthToken[]
 }
 
 model Session {
@@ -216,6 +218,8 @@ model Notification {
   lastError String?
   scheduledFor DateTime
   sentAt DateTime?
+  claimedAt DateTime?
+  metadata Json?
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   appointment Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   @@index([status, scheduledFor])
@@ -232,6 +236,13 @@ model Subscription {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
+model BillingEvent {
+  id String @id
+  type String
+  processedAt DateTime @default(now())
+  @@index([processedAt])
+}
+
 model AuditLog {
   id String @id @default(uuid())
   organizationId String?
@@ -244,4 +255,15 @@ model AuditLog {
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   actor User? @relation(fields: [actorId], references: [id])
   @@index([organizationId, createdAt])
+}
+
+model AuthToken {
+  tokenHash String @id
+  userId String
+  type String
+  expiresAt DateTime
+  usedAt DateTime?
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, type, expiresAt])
 }

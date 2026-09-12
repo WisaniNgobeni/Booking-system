@@ -18,8 +18,14 @@ export async function POST(request: Request) {
     if (!process.env.DATABASE_URL) return NextResponse.json({ error: "Persistent storage is required." }, { status: 503 });
     const body = await request.json(); const startsAt = new Date(body?.startsAt); const endsAt = new Date(body?.endsAt);
     if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime()) || startsAt >= endsAt) return NextResponse.json({ error: "Choose a valid time-off range." }, { status: 400 });
+    if (endsAt.getTime() - startsAt.getTime() > 366 * 24 * 60 * 60_000) return NextResponse.json({ error: "Time-off cannot exceed one year." }, { status: 400 });
+    const staffId = typeof body.staffId === "string" && body.staffId ? body.staffId : null;
     const { prisma } = await import("../../../lib/database");
-    const timeOff = await prisma.timeOff.create({ data: { organizationId: tenant.organizationId, staffId: typeof body.staffId === "string" && body.staffId ? body.staffId : null, startsAt, endsAt, reason: typeof body.reason === "string" ? body.reason.trim() : null } });
+    if (staffId) {
+        const staff = await prisma.staffMember.findFirst({ where: { id: staffId, organizationId: tenant.organizationId, active: true }, select: { id: true } });
+        if (!staff) return NextResponse.json({ error: "Staff member not found." }, { status: 404 });
+    }
+    const timeOff = await prisma.timeOff.create({ data: { organizationId: tenant.organizationId, staffId, startsAt, endsAt, reason: typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : null } });
     return NextResponse.json({ timeOff }, { status: 201 });
 }
 
