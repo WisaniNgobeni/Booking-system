@@ -5,7 +5,7 @@ import { rateLimit, requestAddress } from "../../../../lib/security";
 type Context = { params: Promise<{ token: string }> };
 
 export async function GET(_: Request, context: Context) {
-    const limited = rateLimit(`manage:${requestAddress(_)}`, 30, 60 * 60_000);
+    const limited = await rateLimit(`manage:${requestAddress(_)}`, 30, 60 * 60_000);
     if (limited) return limited;
     const { token } = await context.params;
     if (!process.env.DATABASE_URL) {
@@ -19,7 +19,7 @@ export async function GET(_: Request, context: Context) {
 }
 
 export async function PATCH(request: Request, context: Context) {
-    const limited = rateLimit(`manage:${requestAddress(request)}`, 15, 60 * 60_000);
+    const limited = await rateLimit(`manage:${requestAddress(request)}`, 15, 60 * 60_000);
     if (limited) return limited;
     const { token } = await context.params;
     const body = await request.json();

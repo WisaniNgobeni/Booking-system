@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentTenant } from "../../../lib/tenant";
 import { canManageBusiness } from "../../../lib/security";
+import { writeAudit } from "../../../lib/audit";
 
 export async function GET() {
     const tenant = await getCurrentTenant();
@@ -21,5 +22,6 @@ export async function PATCH(request: Request) {
     const { prisma } = await import("../../../lib/database");
     const appointment = await prisma.appointment.updateMany({ where: { id: body.id, organizationId: tenant.organizationId }, data: { status: body.status } });
     if (!appointment.count) return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
+    await writeAudit(prisma, { organizationId: tenant.organizationId, actorId: tenant.user.id, action: "UPDATE_STATUS", entity: "Appointment", entityId: body.id, metadata: { status: body.status } });
     return NextResponse.json({ ok: true });
 }

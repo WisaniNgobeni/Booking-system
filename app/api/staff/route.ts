@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentTenant } from "../../../lib/tenant";
 import { canManageBusiness } from "../../../lib/security";
+import { canUseFeature } from "../../../lib/plan-access";
 
 async function tenantForWrite() {
     const tenant = await getCurrentTenant();
@@ -25,6 +26,8 @@ export async function POST(request: Request) {
     if (typeof body?.name !== "string" || body.name.trim().length < 2) return NextResponse.json({ error: "Staff name is required." }, { status: 400 });
     if (body.email !== undefined && body.email !== null && typeof body.email !== "string") return NextResponse.json({ error: "Staff email is invalid." }, { status: 400 });
     const { prisma } = await import("../../../lib/database");
+    const subscription = await prisma.subscription.findUnique({ where: { organizationId: result.tenant.organizationId }, select: { plan: true, status: true, currentPeriodEnd: true } });
+    if (!subscription || !canUseFeature(subscription.plan, subscription.status, "team", subscription.currentPeriodEnd)) return NextResponse.json({ error: "Team features require an active Business subscription." }, { status: 403 });
     const staff = await prisma.staffMember.create({ data: { organizationId: result.tenant.organizationId, name: body.name.trim(), email: body.email?.trim() || null, phone: typeof body.phone === "string" ? body.phone.trim() : null, bio: typeof body.bio === "string" ? body.bio.trim() : null } });
     return NextResponse.json({ staff }, { status: 201 });
 }

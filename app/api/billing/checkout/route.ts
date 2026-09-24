@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { appUrl, priceIdForPlan, stripe } from "../../../../lib/billing";
+import { appUrl, canStartCheckout, priceIdForPlan, stripe } from "../../../../lib/billing";
 import { getCurrentTenant } from "../../../../lib/tenant";
 import { canManageBusiness } from "../../../../lib/security";
 
@@ -18,15 +18,17 @@ export async function POST(request: Request) {
             prisma.subscription.findUnique({ where: { organizationId: tenant.organizationId } }),
         ]);
         if (!organization) return NextResponse.json({ error: "Business not found." }, { status: 404 });
+        if (!canStartCheckout(subscription?.status)) return NextResponse.json({ error: "This organization already has a Stripe subscription. Use Manage billing to change it." }, { status: 409 });
         let customerId = subscription?.providerCustomerId;
         if (!customerId) {
             const customer = await stripe.customers.create({ email: organization.email || undefined, name: organization.name, metadata: { organizationId: tenant.organizationId } });
             customerId = customer.id;
             await prisma.subscription.update({ where: { organizationId: tenant.organizationId }, data: { providerCustomerId: customerId } });
         }
-        const session = await stripe.checkout.sessions.create({ mode: "subscription", customer: customerId, line_items: [{ price: priceIdForPlan(plan), quantity: 1 }], success_url: `${appUrl()}/dashboard/profile?billing=success`, cancel_url: `${appUrl()}/dashboard/profile?billing=cancelled`, metadata: { organizationId: tenant.organizationId, plan }, subscription_data: { metadata: { organizationId: tenant.organizationId, plan } } });
+        const priceId = priceIdForPlan(plan);
+        const session = await stripe.checkout.sessions.create({ mode: "subscription", customer: customerId, line_items: [{ price: priceId, quantity: 1 }], success_url: `${appUrl()}/dashboard/profile?billing=success`, cancel_url: `${appUrl()}/dashboard/profile?billing=cancelled`, metadata: { organizationId: tenant.organizationId, plan }, subscription_data: { metadata: { organizationId: tenant.organizationId, plan } } }, { idempotencyKey: `checkout:${tenant.organizationId}:${priceId}` });
         return NextResponse.json({ url: session.url });
     } catch (error) {
-        return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to start checkout." }, { status: 400 });
+        return NextResponse.json({ error: error instanceof Error && error.message.includes("not configured") ? error.message : "Unable to start checkout." }, { status: 400 });
     }
 }

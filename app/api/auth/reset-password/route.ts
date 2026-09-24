@@ -4,7 +4,7 @@ import { hashPassword } from "../../../../lib/auth";
 import { rateLimit, requestAddress } from "../../../../lib/security";
 
 export async function POST(request: Request) {
-    const limited = rateLimit(`reset-password:${requestAddress(request)}`, 5, 60 * 60_000);
+    const limited = await rateLimit(`reset-password:${requestAddress(request)}`, 5, 60 * 60_000);
     if (limited) return limited;
     try {
         const body = await request.json();

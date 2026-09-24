@@ -31,7 +31,14 @@ enum SubscriptionStatus {
   TRIALING
   ACTIVE
   PAST_DUE
+  INCOMPLETE
   CANCELED
+}
+
+enum BillingEventStatus {
+  PROCESSING
+  PROCESSED
+  FAILED
 }
 
 model User {
@@ -80,6 +87,22 @@ model Organization {
   notifications Notification[]
   subscription Subscription?
   auditLogs AuditLog[]
+  calendarAccounts CalendarAccount[]
+}
+
+model CalendarAccount {
+  id String @id @default(uuid())
+  organizationId String
+  provider String
+  providerAccountId String
+  accessToken String
+  refreshToken String
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  @@unique([organizationId, provider])
+  @@index([provider, providerAccountId])
 }
 
 model OrganizationMember {
@@ -231,16 +254,35 @@ model Subscription {
   plan String
   providerCustomerId String? @unique
   providerSubscriptionId String? @unique
+  providerPriceId String?
+  providerProductId String?
   status SubscriptionStatus @default(TRIALING)
+  currency String?
+  currentPeriodStart DateTime?
   currentPeriodEnd DateTime?
+  cancelAtPeriodEnd Boolean @default(false)
+  canceledAt DateTime?
+  trialEnd DateTime?
+  lastStripeEventCreatedAt DateTime?
+  lastSyncedAt DateTime?
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  @@index([providerPriceId])
+  @@index([providerProductId])
 }
 
 model BillingEvent {
   id String @id
   type String
+  status BillingEventStatus @default(PROCESSING)
+  errorMessage String?
+  stripeCreatedAt DateTime?
+  processingStartedAt DateTime?
+  organizationId String?
+  providerSubscriptionId String?
   processedAt DateTime @default(now())
-  @@index([processedAt])
+  @@index([status, processedAt])
+  @@index([organizationId, stripeCreatedAt])
+  @@index([providerSubscriptionId])
 }
 
 model AuditLog {

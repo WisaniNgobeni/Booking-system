@@ -15,6 +15,6 @@ test("booking validation rejects malformed dates and oversized contact details",
 test("security rate limit blocks requests after the configured threshold", async () => {
     const { checkRateLimit } = await import("../lib/rate-limit.ts");
     const key = `test-${Date.now()}`;
-    assert.equal(checkRateLimit(key, 1, 60_000), null);
-    assert.ok((checkRateLimit(key, 1, 60_000) ?? 0) >= 59);
+    assert.equal(await checkRateLimit(key, 1, 60_000), null);
+    assert.ok((await checkRateLimit(key, 1, 60_000) ?? 0) >= 59);
 });

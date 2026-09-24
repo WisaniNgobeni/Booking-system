@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { captureException } from "../../../../lib/monitoring";
 
 export async function POST(request: Request) {
     const cronSecret = process.env.CRON_SECRET;
@@ -18,7 +19,9 @@ export async function POST(request: Request) {
         const accountLink = metadata.token ? `${appUrl}/${notification.type === "EMAIL_VERIFICATION" ? "auth/verify" : "auth/reset-password"}?token=${encodeURIComponent(metadata.token)}` : "";
         const subject = notification.type === "EMAIL_VERIFICATION" ? "Verify your Smallbean email" : notification.type === "PASSWORD_RESET" ? "Reset your Smallbean password" : "Your Smallbean booking is confirmed";
         const html = accountLink ? `<p><a href="${accountLink}">${notification.type === "EMAIL_VERIFICATION" ? "Verify your email address" : "Reset your password"}</a></p>` : "<p>Your appointment has been confirmed. Please keep your booking link safe if you need to manage it.</p>";
-        const response = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${process.env.EMAIL_PROVIDER_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ from: process.env.EMAIL_FROM, to: notification.recipient, subject, html }) });
+        let response: Response;
+        try { response = await fetch("https://api.resend.com/emails", { method: "POST", signal: AbortSignal.timeout(15_000), headers: { Authorization: `Bearer ${process.env.EMAIL_PROVIDER_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ from: process.env.EMAIL_FROM, to: notification.recipient, subject, html }) }); }
+        catch (error) { captureException(error, { notificationId: notification.id, provider: "resend" }); await prisma.notification.update({ where: { id: notification.id }, data: { status: "QUEUED", claimedAt: null, scheduledFor: new Date(Date.now() + 5 * 60_000), lastError: "Email provider request failed" } }); continue; }
         if (response.ok) { await prisma.notification.update({ where: { id: notification.id }, data: { status: "SENT", sentAt: new Date(), claimedAt: null } }); sent += 1; }
         else {
             const attempts = notification.attempts + 1;

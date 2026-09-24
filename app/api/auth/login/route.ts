@@ -3,7 +3,7 @@ import { loginUser, getUserFromSession } from "../../../../lib/auth";
 import { rateLimit, requestAddress } from "../../../../lib/security";
 
 export async function POST(request: Request) {
-    const limited = rateLimit(`login:${requestAddress(request)}`, 8, 15 * 60_000);
+    const limited = await rateLimit(`login:${requestAddress(request)}`, 8, 15 * 60_000);
     if (limited) return limited;
     try {
         const body = await request.json();

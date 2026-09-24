@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentTenant } from "../../../../lib/tenant";
 import { canManageBusiness } from "../../../../lib/security";
+import { writeAudit } from "../../../../lib/audit";
 
 export async function GET() {
     const tenant = await getCurrentTenant();
@@ -23,6 +24,6 @@ export async function PATCH(request: Request) {
     if (typeof data.name !== "string" || data.name.length < 2) return NextResponse.json({ error: "Business name is required." }, { status: 400 });
     if (typeof data.slug !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug)) return NextResponse.json({ error: "Use lowercase letters, numbers, and hyphens for the booking link." }, { status: 400 });
     const { prisma } = await import("../../../../lib/database");
-    try { const business = await prisma.organization.update({ where: { id: tenant.organizationId }, data }); return NextResponse.json({ business }); }
+    try { const business = await prisma.organization.update({ where: { id: tenant.organizationId }, data }); await writeAudit(prisma, { organizationId: tenant.organizationId, actorId: tenant.user.id, action: "UPDATE_PROFILE", entity: "Organization", entityId: tenant.organizationId }); return NextResponse.json({ business }); }
     catch { return NextResponse.json({ error: "That booking link is already in use." }, { status: 409 }); }
 }

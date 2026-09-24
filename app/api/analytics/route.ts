@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentTenant } from "../../../lib/tenant";
+import { canUseFeature } from "../../../lib/plan-access";
 
 export async function GET(request: Request) {
     const tenant = await getCurrentTenant();
@@ -8,6 +9,8 @@ export async function GET(request: Request) {
     const days = Math.min(365, Math.max(7, Number(new URL(request.url).searchParams.get("days")) || 30));
     const from = new Date(Date.now() - days * 24 * 60 * 60_000);
     const { prisma } = await import("../../../lib/database");
+    const subscription = await prisma.subscription.findUnique({ where: { organizationId: tenant.organizationId }, select: { plan: true, status: true, currentPeriodEnd: true } });
+    if (!subscription || !canUseFeature(subscription.plan, subscription.status, "analytics", subscription.currentPeriodEnd)) return NextResponse.json({ error: "Analytics requires an active Pro or Business subscription." }, { status: 403 });
     const appointments = await prisma.appointment.findMany({ where: { organizationId: tenant.organizationId, startsAt: { gte: from } }, select: { status: true, service: { select: { name: true, price: true } } } });
     const completed = appointments.filter((item) => item.status === "COMPLETED");
     const cancellations = appointments.filter((item) => item.status === "CANCELLED").length;

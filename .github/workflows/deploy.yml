@@ -1,0 +1,27 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run ci:check
+      - name: Deploy through hosting provider
+        if: ${{ secrets.DEPLOY_COMMAND != '' }}
+        env:
+          DEPLOY_COMMAND: ${{ secrets.DEPLOY_COMMAND }}
+        run: bash -lc "$DEPLOY_COMMAND"
+      - name: Explain missing deployment command
+        if: ${{ secrets.DEPLOY_COMMAND == '' }}
+        run: echo "Validation completed. Configure DEPLOY_COMMAND for the hosting provider deployment step."

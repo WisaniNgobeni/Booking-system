@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentTenant } from "../../../lib/tenant";
 import { canManageBusiness } from "../../../lib/security";
+import { writeAudit } from "../../../lib/audit";
 
 export async function GET() {
     const tenant = await getCurrentTenant();
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
         if (!staff) return NextResponse.json({ error: "Staff member not found." }, { status: 404 });
     }
     const timeOff = await prisma.timeOff.create({ data: { organizationId: tenant.organizationId, staffId, startsAt, endsAt, reason: typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : null } });
+    await writeAudit(prisma, { organizationId: tenant.organizationId, actorId: tenant.user.id, action: "CREATE", entity: "TimeOff", entityId: timeOff.id, metadata: { staffId } });
     return NextResponse.json({ timeOff }, { status: 201 });
 }
 
@@ -36,5 +38,6 @@ export async function DELETE(request: Request) {
     if (!process.env.DATABASE_URL) return NextResponse.json({ error: "Persistent storage is required." }, { status: 503 });
     const id = new URL(request.url).searchParams.get("id"); if (!id) return NextResponse.json({ error: "Time-off id is required." }, { status: 400 });
     const { prisma } = await import("../../../lib/database"); const deleted = await prisma.timeOff.deleteMany({ where: { id, organizationId: tenant.organizationId } });
+    if (deleted.count) await writeAudit(prisma, { organizationId: tenant.organizationId, actorId: tenant.user.id, action: "DELETE", entity: "TimeOff", entityId: id });
     return deleted.count ? NextResponse.json({ ok: true }) : NextResponse.json({ error: "Time-off record not found." }, { status: 404 });
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentTenant } from "../../../lib/tenant";
 import { canManageBusiness } from "../../../lib/security";
+import { writeAudit } from "../../../lib/audit";
 function serviceInput(body: unknown) {
     if (!body || typeof body !== "object") throw new Error("Service details are required.");
     const value = body as Record<string, unknown>;
@@ -27,16 +28,17 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    try { const result = await tenantForWrite(); if ("error" in result) return result.error; const { prisma } = await import("../../../lib/database"); const service = await prisma.service.create({ data: { organizationId: result.tenant.organizationId, ...serviceInput(await request.json()) } }); return NextResponse.json({ service }, { status: 201 }); }
+    try { const result = await tenantForWrite(); if ("error" in result) return result.error; const { prisma } = await import("../../../lib/database"); const service = await prisma.service.create({ data: { organizationId: result.tenant.organizationId, ...serviceInput(await request.json()) } }); await writeAudit(prisma, { organizationId: result.tenant.organizationId, actorId: result.tenant.user.id, action: "CREATE", entity: "Service", entityId: service.id }); return NextResponse.json({ service }, { status: 201 }); }
     catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to create service." }, { status: 400 }); }
 }
 export async function PATCH(request: Request) {
-    try { const result = await tenantForWrite(); if ("error" in result) return result.error; const body = await request.json(); if (typeof body?.id !== "string") throw new Error("Service id is required."); const { prisma } = await import("../../../lib/database"); const data = body.active === undefined ? serviceInput(body) : { active: Boolean(body.active) }; const updated = await prisma.service.updateMany({ where: { id: body.id, organizationId: result.tenant.organizationId, deletedAt: null }, data }); if (!updated.count) return NextResponse.json({ error: "Service not found." }, { status: 404 }); return NextResponse.json({ ok: true }); }
+    try { const result = await tenantForWrite(); if ("error" in result) return result.error; const body = await request.json(); if (typeof body?.id !== "string") throw new Error("Service id is required."); const { prisma } = await import("../../../lib/database"); const data = body.active === undefined ? serviceInput(body) : { active: Boolean(body.active) }; const updated = await prisma.service.updateMany({ where: { id: body.id, organizationId: result.tenant.organizationId, deletedAt: null }, data }); if (!updated.count) return NextResponse.json({ error: "Service not found." }, { status: 404 }); await writeAudit(prisma, { organizationId: result.tenant.organizationId, actorId: result.tenant.user.id, action: "UPDATE", entity: "Service", entityId: body.id }); return NextResponse.json({ ok: true }); }
     catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to update service." }, { status: 400 }); }
 }
 export async function DELETE(request: Request) {
     const result = await tenantForWrite(); if ("error" in result) return result.error;
     const id = new URL(request.url).searchParams.get("id"); if (!id) return NextResponse.json({ error: "Service id is required." }, { status: 400 });
     const { prisma } = await import("../../../lib/database"); const deleted = await prisma.service.updateMany({ where: { id, organizationId: result.tenant.organizationId, deletedAt: null }, data: { deletedAt: new Date(), active: false } });
+    if (deleted.count) await writeAudit(prisma, { organizationId: result.tenant.organizationId, actorId: result.tenant.user.id, action: "DELETE", entity: "Service", entityId: id });
     return deleted.count ? NextResponse.json({ ok: true }) : NextResponse.json({ error: "Service not found." }, { status: 404 });
 }
