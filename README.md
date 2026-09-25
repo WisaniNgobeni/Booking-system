@@ -14,7 +14,8 @@ Open `http://localhost:3000`. The demo dashboard is at `/dashboard` and the publ
 ## Commands
 
 ```bash
-npm run build   # production compile
+npm run build   # apply pending migrations, then build for deployment
+npm run build:check # compile without connecting to a database (CI)
 npm run start   # serve the production build
  npm run lint    # TypeScript validation
  npm test        # domain tests
@@ -28,11 +29,9 @@ Database backups can be run with `./scripts/backup-database.sh` on Linux or `./s
 
 ## Production configuration
 
-Copy `.env.example` to `.env` and set your Hostinger MariaDB `DATABASE_URL` plus a long random `AUTH_SECRET`. Production requests fail closed when persistence is not configured. Generate the Prisma client, apply migrations, build, and serve the production bundle:
+Copy `.env.example` to `.env` and set your Hostinger MariaDB `DATABASE_URL` plus a long random `AUTH_SECRET`. Production requests fail closed when persistence is not configured. The deployment build applies pending migrations, generates the Prisma client, and builds the production bundle:
 
 ```bash
-npm run db:generate
-npm run db:deploy
 npm run build
 npm start
 ```
