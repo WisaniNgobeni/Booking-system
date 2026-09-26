@@ -1,34 +1,54 @@
 import Link from "next/link";
-import { ArrowRight, CalendarCheck2, Check, Link2, Share2, Store } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarCheck2, CalendarDays, ChartNoAxesColumn, Check, Clock3, Link2, Scissors, ShieldCheck, Users } from "lucide-react";
+import { MarketingFooter, MarketingHeader } from "./marketing-chrome";
+import { PhonePreview } from "./phone-preview";
+import { pageMetadata } from "../lib/seo";
 
-const audiences = ["Barbers", "Beauty studios", "Tutors", "Nail artists", "Personal trainers", "Photographers"];
-const steps = [
-    ["01", "Create your business", "Set up your profile with the details customers need."],
-    ["02", "Add services", "Set prices, durations, and the services you offer."],
-    ["03", "Set availability", "Choose your opening hours and days off."],
-    ["04", "Share your link", "Put your Smallbean link in every social bio."],
+export const metadata = pageMetadata({
+    title: "Online booking for service businesses",
+    description: "Give your South African service business one clear booking link. Share services, real availability, and let customers book online anytime.",
+    path: "/",
+});
+
+const audiences = ["Hair & beauty", "Wellness", "Tutoring", "Fitness", "Creative studios", "Independent pros"];
+const workflow = [
+    { number: "01", title: "Set your services", text: "Add what you do, how long it takes, and what it costs." },
+    { number: "02", title: "Shape your week", text: "Choose working hours, team availability, and time off." },
+    { number: "03", title: "Share one link", text: "Put your booking page wherever people already find you." },
+];
+const questions = [
+    { question: "Can customers book when I’m away?", answer: "Yes. Your booking page stays available around the clock and only offers times that fit your working hours and current appointments." },
+    { question: "Can I manage more than one service?", answer: "Yes. Add services with their own descriptions, durations, and prices, then manage them from your dashboard." },
+    { question: "Can I add staff later?", answer: "Yes. You can start on your own and add staff as your business grows. Team tools are included on the Business plan." },
+    { question: "Do customers need an account?", answer: "No. Customers book through your public business page and provide the contact details you require." },
 ];
 
 export default function Home() {
-    return <main>
-        <header className="topbar platform-topbar">
-            <Link className="brand" href="/">smallbean<span>·</span></Link>
-            <nav className="nav"><a href="#how-it-works">How it works</a><a href="#businesses">For businesses</a><a href="#customers">For customers</a></nav>
-            <div className="actions"><Link className="button light" href="/auth">Sign in</Link><Link className="button dark" href="/auth">Get started <ArrowRight size={15} /></Link></div>
-        </header>
-
-        <section className="hero platform-hero">
-            <div className="hero-copy"><p className="mono eyebrow">The booking link for your business</p><h1>Bookings that move your business forward.</h1><p>Smallbean gives service businesses a simple booking page customers can use anytime, from Instagram to WhatsApp.</p><div className="actions"><Link className="button dark" href="/auth">Create your business <ArrowRight size={15} /></Link><a className="button light" href="#how-it-works">See how it works</a></div><div className="hero-specs"><div><strong>1 link</strong><span>for every channel</span></div><div><strong>24/7</strong><span>customer bookings</span></div><div><strong>0 fuss</strong><span>to get started</span></div></div></div>
-            <div className="hero-card platform-card"><div className="hero-card-top"><span className="mono">Your booking home</span><span className="status-pill"><Check size={12} /> Live</span></div><div className="mock-link"><Link2 size={15} /><span>smallbean.co.za/your-business</span></div><div className="mock-flow"><div><Store size={17} /><span>Your business profile</span></div><div><CalendarCheck2 size={17} /><span>Services and availability</span></div><div><Share2 size={17} /><span>One link to share everywhere</span></div></div><div className="accent-row"><span className="mono">Customers see</span><strong>Your business. Your services. Your availability.</strong></div></div>
+    return <><main className="market-home">
+        <section className="market-hero">
+            <MarketingHeader dark />
+            <div className="market-hero-inner">
+                <div className="market-hero-copy">
+                    <p className="market-eyebrow"><span className="market-live-dot" /> A booking page made for your kind of work</p>
+                    <h1>Make room<br />for more <em>good work.</em></h1>
+                    <p className="market-hero-description">One thoughtful link for your services, your real availability, and the people ready to book you.</p>
+                    <div className="market-actions"><Link className="market-button market-button-lime" href="/auth">Build your booking page <ArrowRight size={16} /></Link><Link className="market-text-link market-text-link-light" href="/how-it-works">See how it works <ArrowUpRight size={15} /></Link></div>
+                    <div className="market-proof-row"><div><strong>One link</strong><span>across every channel</span></div><div><strong>Any hour</strong><span>for customer bookings</span></div><div><strong>Your rules</strong><span>for every open slot</span></div></div>
+                </div>
+                <div className="market-hero-art"><PhonePreview /><div className="market-float market-float-booking"><span className="market-float-icon"><CalendarCheck2 size={16} /></span><span><strong>New booking</strong><small>Tue · 29 Sep · 10:30</small></span><Check size={15} className="market-float-check" /></div><div className="market-float market-float-link"><Link2 size={15} /><span>yourbusiness.smallbean.co.za</span></div><p className="market-preview-caption">A booking page that feels like your business.</p></div>
+            </div>
+            <div className="market-hero-index"><span>01 / A calmer way to get booked</span><span>Built for independent service businesses</span></div>
         </section>
-
-        <section className="trust-strip" id="businesses">{audiences.map((audience) => <span key={audience}>{audience}</span>)}</section>
-
-        <section className="section" id="how-it-works"><div className="section-head"><div><p className="mono eyebrow">A calmer way to get booked</p><h2>From first setup to confirmed appointment.</h2></div></div><div className="cards highlight-cards">{steps.map(([number, title, text]) => <article className="feature lift-card" key={number}><span className="mono">{number}</span><h3>{title}</h3><p>{text}</p></article>)}</div></section>
-
-        <section className="section feature-panel" id="customers"><div className="section-head split-head"><div><p className="mono eyebrow">Built for real-world sharing</p><h2>Your customers already know where to find you.</h2></div><p className="section-note">Keep your marketing on Instagram, TikTok, Facebook, or WhatsApp. Smallbean gives every business a focused place to turn attention into appointments.</p></div><div className="platform-grid"><div><Store size={20} /><h3>For every kind of service</h3><p>From a solo tutor to a growing wellness studio, each business gets its own profile and booking link.</p></div><div><CalendarCheck2 size={20} /><h3>Availability that stays honest</h3><p>Slots use your hours, service duration, time off, and existing bookings so customers only see real availability.</p></div><div><Share2 size={20} /><h3>One link, everywhere</h3><p>Share a single link in your bio, messages, and posts. Customers go straight from interest to booking.</p></div></div></section>
-
-        <section className="section cta-band"><p className="mono eyebrow">Ready when you are</p><h2>Give your business a better way to be booked.</h2><Link className="button dark" href="/auth">Create your Smallbean account <ArrowRight size={15} /></Link></section>
-        <footer className="footer"><div><span className="brand">smallbean<span>·</span></span><span className="muted footer-note">Booking infrastructure for independent businesses.</span></div><nav className="footer-links" aria-label="Legal information"><Link href="/terms-and-conditions">Terms &amp; Conditions</Link><Link href="/privacy-policy">Privacy Policy</Link><Link href="/refund-and-cancellation">Refund &amp; Cancellation Policy</Link></nav></footer>
-    </main>;
+        <section className="market-audience-band" aria-label="Businesses Smallbean is built for"><span className="market-band-label">GOOD FIT FOR</span>{audiences.map((audience) => <span className="market-audience" key={audience}>{audience}</span>)}</section>
+        <section className="market-section market-intro" id="features"><div className="market-section-heading"><p className="market-eyebrow market-eyebrow-dark">Less back-and-forth. More of your actual work.</p><h2>Your booking page should feel like an open door, not another admin job.</h2></div><div className="market-intro-side"><p>Customers get a clear place to choose a service and a real time. You get to stop juggling “are you free at 3?” across every inbox.</p><Link className="market-text-link" href="/features">Explore the features <ArrowRight size={15} /></Link></div></section>
+        <section className="market-feature-split"><div className="market-feature-copy"><p className="market-eyebrow market-eyebrow-dark">A little structure goes a long way</p><h2>Everything customers need to say, “That time works.”</h2><p>Each business gets a public page with its own services and schedule. Share it in your bio, send it in a message, or add it to your website.</p><ul className="market-check-list"><li><Check size={15} /> Services, durations, and prices in one place</li><li><Check size={15} /> Availability based on your working hours</li><li><Check size={15} /> Existing bookings and time off accounted for</li></ul><Link className="market-text-link" href="/features">See what’s included <ArrowRight size={15} /></Link></div>
+            <div className="market-schedule-art" aria-label="Sample weekly appointment schedule"><div className="market-schedule-top"><div><span className="market-small-label">SAMPLE WEEK</span><strong>Studio Moya</strong></div><span className="market-schedule-date">28 Sep — 03 Oct</span></div><div className="market-schedule-days"><span>MON <b>28</b></span><span>TUE <b>29</b></span><span className="is-today">WED <b>30</b></span><span>THU <b>01</b></span><span>FRI <b>02</b></span></div><div className="market-schedule-list"><div className="market-schedule-row"><time>09:00</time><i className="schedule-mark schedule-mark-mint" /><span><strong>Wash &amp; shape</strong><small>Amara N. · 45 min</small></span><b>Confirmed</b></div><div className="market-schedule-row"><time>10:30</time><i className="schedule-mark schedule-mark-coral" /><span><strong>Signature cut</strong><small>Leo M. · 60 min</small></span><b>Confirmed</b></div><div className="market-schedule-row"><time>12:00</time><i className="schedule-mark schedule-mark-gold" /><span><strong>Colour consult</strong><small>Sam K. · 30 min</small></span><b>New</b></div></div><div className="market-schedule-foot"><span><span className="market-live-dot" /> Availability stays in sync with your settings</span><ArrowUpRight size={15} /></div></div>
+        </section>
+        <section className="market-process"><div className="market-section market-process-inner"><div className="market-process-heading"><p className="market-eyebrow">From setup to first booking</p><h2>Three small steps.<br /><em>A much easier week.</em></h2><Link className="market-text-link market-text-link-light" href="/how-it-works">Walk through the setup <ArrowRight size={15} /></Link></div><div className="market-step-list">{workflow.map((step) => <article className="market-step" key={step.number}><span className="market-step-number">{step.number}</span><div><h3>{step.title}</h3><p>{step.text}</p></div><ArrowUpRight size={17} /></article>)}</div></div></section>
+        <section className="market-section market-tools-section"><div className="market-tools-heading"><div><p className="market-eyebrow market-eyebrow-dark">The useful details</p><h2>Small things that give you your time back.</h2></div><Link className="market-text-link" href="/features">See all features <ArrowRight size={15} /></Link></div><div className="market-tools-grid"><article><span className="market-tool-icon"><Clock3 size={19} /></span><span className="market-small-label">AVAILABILITY</span><h3>Only the slots you mean to offer.</h3><p>Set business hours, service lengths, staff schedules, and time away. The booking page checks them before showing a time.</p></article><article><span className="market-tool-icon market-tool-icon-coral"><Users size={19} /></span><span className="market-small-label">CUSTOMERS</span><h3>Keep the important details close.</h3><p>See customer contact details and appointment history from the same workspace you use to manage the day.</p></article><article><span className="market-tool-icon market-tool-icon-gold"><ShieldCheck size={19} /></span><span className="market-small-label">CONTROL</span><h3>Set boundaries that work for you.</h3><p>Choose how much notice bookings need, how far ahead they can be made, and whether customers can manage a booking.</p></article></div></section>
+        <section className="market-usecases"><div className="market-section market-usecases-inner"><div><p className="market-eyebrow market-eyebrow-dark">Made for services, not storefronts</p><h2>Your craft is the main event.<br /><em>Booking should be the easy part.</em></h2></div><div className="market-usecase-list"><div><Scissors size={18} /><span><strong>Hair &amp; beauty</strong><small>Let clients choose their service and a time that fits.</small></span><ArrowRight size={15} /></div><div><CalendarDays size={18} /><span><strong>Wellness &amp; fitness</strong><small>Make recurring routines easier to schedule.</small></span><ArrowRight size={15} /></div><div><ChartNoAxesColumn size={18} /><span><strong>Tutors &amp; consultants</strong><small>Spend less time arranging the next session.</small></span><ArrowRight size={15} /></div></div></div></section>
+        <section className="market-pricing-preview"><div className="market-section market-pricing-inner"><div><p className="market-eyebrow market-eyebrow-dark">Start simple. Grow when you’re ready.</p><h2>A plan for the business you have today.</h2><p>Start with the essentials, then add analytics, calendar tools, and team features when you need them.</p><Link className="market-text-link" href="/pricing">Compare all plans <ArrowRight size={15} /></Link></div><div className="market-price-preview-list"><div><span>Free</span><strong>R 0 <small>/ month</small></strong><Check size={16} /></div><div><span>Pro</span><strong>R 299 <small>/ month</small></strong><Check size={16} /></div><div><span>Business</span><strong>R 599 <small>/ month</small></strong><Check size={16} /></div></div></div></section>
+        <section className="market-section market-faq"><div className="market-faq-heading"><p className="market-eyebrow market-eyebrow-dark">A few good questions</p><h2>Before you open the door.</h2><Link className="market-text-link" href="/how-it-works">More about getting started <ArrowRight size={15} /></Link></div><div className="market-faq-list">{questions.map((item) => <details key={item.question}><summary>{item.question}<span>+</span></summary><p>{item.answer}</p></details>)}</div></section>
+        <section className="market-last-call"><div className="market-last-call-inner"><p className="market-eyebrow">Your next booking can start here</p><h2>Give your business one good place to be found.</h2><p>Build your page, set your hours, and share your link when you’re ready.</p><Link className="market-button market-button-lime" href="/auth">Create your free account <ArrowRight size={16} /></Link></div></section>
+    </main><MarketingFooter /></>;
 }

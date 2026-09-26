@@ -38,6 +38,10 @@ npm start
 
 After deployment, check `/api/health`. It should return `{"ok":true,"database":"connected"}`.
 
+## Search engine setup
+
+The canonical site URL is `https://bookingsystem.smallbeanstudio.com`. After deployment, verify this domain in Google Search Console, then submit `https://bookingsystem.smallbeanstudio.com/sitemap.xml`. To use HTML-tag verification, set the `GOOGLE_SITE_VERIFICATION` environment variable in Hostinger to the verification token from Search Console and redeploy. Search engines decide when and whether to index submitted pages; sitemap submission is not an indexing guarantee.
+
 To deliver booking confirmation emails, configure `EMAIL_PROVIDER_KEY` and `EMAIL_FROM`, then call `POST /api/notifications/process` periodically with `Authorization: Bearer CRON_SECRET` from a trusted scheduler.
 
 For SaaS billing, configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO`, and `STRIPE_PRICE_BUSINESS`. Register `POST /api/billing/webhook` in Stripe, enable the customer portal, and use the authenticated checkout and portal endpoints from the dashboard billing UI.
