@@ -1,16 +1,14 @@
-# Smallbean
+# Smallbean Booking System
 
-Smallbean is an appointment-booking and business-management application for independent service providers and small teams in South Africa. It gives businesses a shareable booking page and a workspace to manage services, availability, customers, and appointments.
+Smallbean is a booking management platform I am developing to help small service-based businesses digitise their appointment management.
 
 ## The problem
 
-Many small service businesses coordinate appointments through calls, messaging apps, paper diaries, or spreadsheets. These disconnected tools take time away from paid work, make availability harder to communicate, and can lead to missed or conflicting bookings. Smaller businesses may also lack the time or budget to build and maintain their own online booking system.
-
-This project explores a practical, low-friction way to help those businesses participate in digital commerce. These statements describe the product motivation, not a quantified research finding.
+Many small businesses still manage appointments through WhatsApp, phone calls, social media messages, and manual calendars. Keeping availability and customer conversations across separate tools takes time and can make it harder to avoid missed or conflicting bookings.
 
 ## The solution
 
-Smallbean brings service listings, business hours, booking rules, and available appointment times into one responsive web application. Customers can book through a public page, while the business manages its schedule and customer records from a dashboard.
+Smallbean aims to provide a simple digital booking system that lets businesses manage their services and availability while allowing customers to book online through a shareable booking page.
 
 ## Current features
 
@@ -34,32 +32,43 @@ Google and Microsoft calendar connection code is present, but full calendar sync
 - Stripe for subscription billing; Upstash Redis and Sentry are optional integrations.
 - GitHub Actions for continuous integration.
 
-## Planned AWS services
+## AWS re/Start showcase
 
-AWS deployment is planned and is not implemented in this repository yet. The current configuration targets a MariaDB database outside AWS. The proposed AWS architecture is:
+This project was started independently before I joined the AWS re/Start programme. I am using it as my AWS re/Start showcase project to apply the cloud, networking, security, Linux, Python, database, and automation skills I am learning throughout the programme.
 
-- Amazon ECS on AWS Fargate to run the containerized Next.js application, with Amazon ECR for container images.
-- Amazon RDS for MySQL for managed relational storage, after validating the existing MariaDB schema and migrations against the selected engine.
-- AWS Secrets Manager for database credentials, authentication secrets, and third-party API credentials.
-- Amazon CloudWatch for application logs, metrics, dashboards, and operational alarms.
-- Amazon SES for transactional email delivery.
-- Amazon S3 for encrypted backup and export storage, with access restricted by IAM policies.
-- AWS Certificate Manager and Amazon Route 53 for TLS certificates and DNS if the domain is moved to AWS-managed infrastructure.
+### Current status
 
-The deployment plan includes least-privilege IAM roles, encryption in transit and at rest, managed database backups, and environment-specific configuration. These are goals for the AWS implementation, not claims about the current deployment.
+**Status: Work in Progress**
 
-## Development status
+Smallbean is not currently launch-ready. The core application and booking experience are under active development. The purpose of this repository is to document the project's development and demonstrate how I am applying the skills gained through AWS re/Start.
 
-Smallbean is an actively developed MVP. The core booking, account, business-management, and billing flows are represented in the application, with domain tests and a GitHub Actions workflow. The repository is not currently deployed on AWS. Production readiness still depends on configuring external providers, validating operational controls, and completing a security and deployment review.
+### AWS re/Start implementation goals
 
-## Future improvements
+AWS services and infrastructure below are planned work; they are not implemented or currently in use by this project.
 
-- Deploy the application and database to the planned AWS architecture and automate releases from GitHub Actions using OIDC.
-- Complete Google and Microsoft calendar synchronization, including refresh-token lifecycle and conflict policy.
+| Area | Planned application | Status |
+| --- | --- | --- |
+| Cloud | Deploy the application using AWS infrastructure, initially evaluating Amazon ECS on AWS Fargate and Amazon ECR. | Planned |
+| Networking | Design a secure VPC and network layout for the application and database. | Planned |
+| Security | Apply least-privilege IAM, secure secret storage, and encryption in transit and at rest. | Planned |
+| Database | Evaluate Amazon RDS for MariaDB or MySQL and validate schema, migration, backup, and restore compatibility. | Planned |
+| Linux | Build and operate Linux-based application workloads; practice configuration, updates, and troubleshooting. | Planned |
+| Python | Develop Python scripts for operational tooling and repeatable cloud tasks. | Planned |
+| Monitoring | Use Amazon CloudWatch for logs, metrics, dashboards, and alarms. | Planned |
+| Automation | Automate repeatable infrastructure, deployment, and operational tasks. | Planned |
+| Storage | Evaluate Amazon S3 for appropriate assets, exports, or encrypted backups. | Planned |
+| DNS/CDN | Evaluate Amazon Route 53 for DNS and Amazon CloudFront for content delivery. | Planned |
+| Infrastructure as Code | Explore AWS CloudFormation to define and reproduce infrastructure. | Planned |
+| CI/CD | Extend the existing GitHub Actions workflow to deploy to AWS, using OIDC for AWS access where appropriate. | Planned |
+
+### Future improvements
+
+- Implement the AWS roadmap incrementally and document architecture decisions and security trade-offs.
+- Complete Google and Microsoft calendar synchronization, including token lifecycle and conflict handling.
 - Configure and monitor transactional email delivery and scheduled notification processing.
 - Add integration tests for authentication, tenant isolation, bookings, billing webhooks, and notification retries.
-- Validate database migration and restore procedures against the production database engine.
-- Complete load, accessibility, security, and disaster-recovery testing before production use.
+- Validate database migration and restore procedures against the selected AWS database engine.
+- Complete load, accessibility, security, and disaster-recovery testing before any production launch.
 
 ## Run locally
 
