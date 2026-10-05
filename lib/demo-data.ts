@@ -1,10 +1,10 @@
 export const business = {
-    name: "PRECIOUS BARBER STUDIO",
-    slug: "studio-moya",
+    name: "SAMPLE BARBER STUDIO",
+    slug: "sample-studio",
     tagline: "Premium barbering for sharp cuts and smooth finishes.",
-    address: "1101 Burnett Street, Hatfield, Gauteng",
-    phone: "065 120 8916",
-    email: "preciousbarberstudio@gmail.com",
+    address: "123 Example Street, Sampletown, South Africa",
+    phone: "+27 00 000 0000",
+    email: "bookings@example.invalid",
     hours: "Mon-Sat · 09:00 - 18:00",
 };
 
@@ -18,8 +18,8 @@ export const services = [
 ];
 
 export const appointments = [
-    { time: "09:00", name: "Maya Ndlovu", service: "Adults Haircut + Beard + Hair Fiber", status: "Confirmed", initials: "MN" },
-    { time: "10:30", name: "Liam Jacobs", service: "Adults Haircut + Black Dye", status: "Confirmed", initials: "LJ" },
-    { time: "13:00", name: "Zoe Williams", service: "Edge Up", status: "Pending", initials: "ZW" },
-    { time: "15:30", name: "Noah Smith", service: "Clipper Shave (Beard)", status: "Confirmed", initials: "NS" },
+    { time: "09:00", name: "Alex Example", service: "Adults Haircut + Beard + Hair Fiber", status: "Confirmed", initials: "AE" },
+    { time: "10:30", name: "Sam Sample", service: "Adults Haircut + Black Dye", status: "Confirmed", initials: "SS" },
+    { time: "13:00", name: "Taylor Test", service: "Edge Up", status: "Pending", initials: "TT" },
+    { time: "15:30", name: "Jamie Demo", service: "Clipper Shave (Beard)", status: "Confirmed", initials: "JD" },
 ];

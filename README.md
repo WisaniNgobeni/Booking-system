@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`. The demo dashboard is at `/dashboard` and the public booking page is at `/book/studio-moya`.
+Open `http://localhost:3000`. The demo dashboard is at `/dashboard` and the public booking page is at `/book/sample-studio`.
 
 ## Commands
 
