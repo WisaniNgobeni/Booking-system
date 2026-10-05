@@ -1,65 +1,87 @@
-# Tandem
+# Smallbean
 
-Tandem is a booking experience for service businesses. This repository currently contains the first validated product slice: a polished marketing page, a responsive dashboard overview, and a public booking flow with service selection, date/time selection, and confirmation state.
+Smallbean is an appointment-booking and business-management application for independent service providers and small teams in South Africa. It gives businesses a shareable booking page and a workspace to manage services, availability, customers, and appointments.
+
+## The problem
+
+Many small service businesses coordinate appointments through calls, messaging apps, paper diaries, or spreadsheets. These disconnected tools take time away from paid work, make availability harder to communicate, and can lead to missed or conflicting bookings. Smaller businesses may also lack the time or budget to build and maintain their own online booking system.
+
+This project explores a practical, low-friction way to help those businesses participate in digital commerce. These statements describe the product motivation, not a quantified research finding.
+
+## The solution
+
+Smallbean brings service listings, business hours, booking rules, and available appointment times into one responsive web application. Customers can book through a public page, while the business manages its schedule and customer records from a dashboard.
+
+## Current features
+
+- Public business booking pages with service descriptions, prices, durations, and available times.
+- Availability calculations that account for working hours, time off, booking windows, and existing appointments.
+- Appointment management links for customer cancellation and rescheduling, subject to business rules.
+- Business dashboard for appointments, customers, services, staff, working hours, time off, and analytics.
+- Account registration, sign-in, email-verification and password-reset token flows.
+- Tenant-scoped business data and role-aware organization membership.
+- Queued email notifications. Delivery requires a configured email provider and a trusted scheduler.
+- Stripe subscription checkout, billing portal, and webhook handling. These require Stripe configuration.
+- GitHub Actions checks for typechecking, tests, database validation, and a production build check.
+
+Google and Microsoft calendar connection code is present, but full calendar synchronization and conflict handling remain future work.
+
+## Technology stack
+
+- Next.js 16, React 19, TypeScript, and Node.js 22.
+- Prisma ORM with a MySQL-compatible database. The current deployment configuration uses MariaDB.
+- `jose` and `bcryptjs` for signed sessions and password hashing.
+- Stripe for subscription billing; Upstash Redis and Sentry are optional integrations.
+- GitHub Actions for continuous integration.
+
+## Planned AWS services
+
+AWS deployment is planned and is not implemented in this repository yet. The current configuration targets a MariaDB database outside AWS. The proposed AWS architecture is:
+
+- Amazon ECS on AWS Fargate to run the containerized Next.js application, with Amazon ECR for container images.
+- Amazon RDS for MySQL for managed relational storage, after validating the existing MariaDB schema and migrations against the selected engine.
+- AWS Secrets Manager for database credentials, authentication secrets, and third-party API credentials.
+- Amazon CloudWatch for application logs, metrics, dashboards, and operational alarms.
+- Amazon SES for transactional email delivery.
+- Amazon S3 for encrypted backup and export storage, with access restricted by IAM policies.
+- AWS Certificate Manager and Amazon Route 53 for TLS certificates and DNS if the domain is moved to AWS-managed infrastructure.
+
+The deployment plan includes least-privilege IAM roles, encryption in transit and at rest, managed database backups, and environment-specific configuration. These are goals for the AWS implementation, not claims about the current deployment.
+
+## Development status
+
+Smallbean is an actively developed MVP. The core booking, account, business-management, and billing flows are represented in the application, with domain tests and a GitHub Actions workflow. The repository is not currently deployed on AWS. Production readiness still depends on configuring external providers, validating operational controls, and completing a security and deployment review.
+
+## Future improvements
+
+- Deploy the application and database to the planned AWS architecture and automate releases from GitHub Actions using OIDC.
+- Complete Google and Microsoft calendar synchronization, including refresh-token lifecycle and conflict policy.
+- Configure and monitor transactional email delivery and scheduled notification processing.
+- Add integration tests for authentication, tenant isolation, bookings, billing webhooks, and notification retries.
+- Validate database migration and restore procedures against the production database engine.
+- Complete load, accessibility, security, and disaster-recovery testing before production use.
 
 ## Run locally
 
+Prerequisites: Node.js 22 and a MySQL-compatible database. Copy `.env.example` to `.env` and configure `DATABASE_URL` and a strong `AUTH_SECRET` before running database-backed flows.
+
 ```bash
 npm install
+npm run db:generate
+npm run db:migrate
 npm run dev
 ```
 
-Open `http://localhost:3000`. The demo dashboard is at `/dashboard` and the public booking page is at `/book/sample-studio`.
+Open `http://localhost:3000`. The demo dashboard is at `/dashboard`; the public booking page is at `/book/sample-studio`.
 
-## Commands
+## Useful commands
 
 ```bash
-npm run build   # apply pending migrations, then build for deployment
-npm run build:check # compile without connecting to a database (CI)
-npm run start   # serve the production build
- npm run lint    # TypeScript validation
- npm test        # domain tests
+npm test
+npm run typecheck
 npm run db:validate
-npm run db:generate
-npm run db:migrate
+npm run build:check
 npm run ci:check
 ```
 
-Database backups can be run with `./scripts/backup-database.sh` on Linux or `./scripts/backup-database.ps1` on Windows. The scripts retain the newest 14 dumps; copy completed dumps to separate storage and test restoration regularly.
-
-## Production configuration
-
-Copy `.env.example` to `.env` and set your Hostinger MariaDB `DATABASE_URL` plus a long random `AUTH_SECRET`. Production requests fail closed when persistence is not configured. The deployment build applies pending migrations, generates the Prisma client, and builds the production bundle:
-
-```bash
-npm run build
-npm start
-```
-
-After deployment, check `/api/health`. It should return `{"ok":true,"database":"connected"}`.
-
-## Search engine setup
-
-The canonical site URL is `https://bookingsystem.smallbeanstudio.com`. After deployment, verify this domain in Google Search Console, then submit `https://bookingsystem.smallbeanstudio.com/sitemap.xml`. To use HTML-tag verification, set the `GOOGLE_SITE_VERIFICATION` environment variable in Hostinger to the verification token from Search Console and redeploy. Search engines decide when and whether to index submitted pages; sitemap submission is not an indexing guarantee.
-
-To deliver booking confirmation emails, configure `EMAIL_PROVIDER_KEY` and `EMAIL_FROM`, then call `POST /api/notifications/process` periodically with `Authorization: Bearer CRON_SECRET` from a trusted scheduler.
-
-For SaaS billing, configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO`, and `STRIPE_PRICE_BUSINESS`. Register `POST /api/billing/webhook` in Stripe, enable the customer portal, and use the authenticated checkout and portal endpoints from the dashboard billing UI.
-
-The public booking flow validates contact details, booking windows, working hours, time off, and conflicts. Customer management links enforce cancellation and rescheduling policy. Before first deployment, create and review the initial Prisma migration for the target database, configure email delivery for queued notifications, and verify backups, monitoring, rate limiting, and HTTPS at the hosting layer.
-
-## Production launch checklist
-
-- Run CI against every pull request: `npm run ci:check`.
-- Apply migrations before starting the new application release: `npm run db:deploy`.
-- Configure a trusted scheduler for `POST /api/notifications/process` with `Authorization: Bearer CRON_SECRET`.
-- Register Stripe `checkout.session.completed` and `customer.subscription.*` webhooks at `/api/billing/webhook`.
-- Configure Resend domain authentication, `EMAIL_FROM`, and delivery monitoring.
-- Use Redis or a platform-backed rate limiter before running more than one application instance.
-- Enable automated MariaDB backups and test restoration before accepting live bookings.
-- Monitor `/api/health`, application errors, webhook failures, queue age, and database capacity.
-- Complete Google/Outlook OAuth sync only after choosing token storage, conflict policy, and a background-job provider.
-- Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` before running multiple application instances; the local limiter is only a development fallback.
-- Set `SENTRY_DSN` to enable server-side error capture and configure alert rules for failed webhooks, queue age, and database errors.
-- Register Google and Microsoft callback URLs as `/api/calendar/google/callback` and `/api/calendar/microsoft/callback`.
-- Configure the GitHub `DEPLOY_COMMAND` production secret for the hosting provider used by `.github/workflows/deploy.yml`.
+`npm run build` applies pending migrations before building. Database backup scripts are available at `scripts/backup-database.sh` and `scripts/backup-database.ps1`; test restore procedures and keep backups in separate, access-controlled storage.
