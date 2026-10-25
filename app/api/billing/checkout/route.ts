@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { appUrl, canStartCheckout, priceIdForPlan, stripe } from "../../../../lib/billing";
+import { appUrl, canStartCheckout, createPayFastCheckout, payfastConfig, priceIdForPlan, stripe } from "../../../../lib/billing";
 import { getCurrentTenant } from "../../../../lib/tenant";
 import { canManageBusiness } from "../../../../lib/security";
 
@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const tenant = await getCurrentTenant();
     if (!tenant) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
     if (!canManageBusiness(tenant.role)) return NextResponse.json({ error: "Business management permission required." }, { status: 403 });
-    if (!stripe || !process.env.DATABASE_URL) return NextResponse.json({ error: "Billing is not configured." }, { status: 503 });
+    if (!process.env.DATABASE_URL) return NextResponse.json({ error: "Persistent storage is required." }, { status: 503 });
     try {
         const body = await request.json();
         const plan = typeof body?.plan === "string" ? body.plan.toUpperCase() : "";
@@ -18,7 +18,27 @@ export async function POST(request: Request) {
             prisma.subscription.findUnique({ where: { organizationId: tenant.organizationId } }),
         ]);
         if (!organization) return NextResponse.json({ error: "Business not found." }, { status: 404 });
-        if (!canStartCheckout(subscription?.status)) return NextResponse.json({ error: "This organization already has a Stripe subscription. Use Manage billing to change it." }, { status: 409 });
+        if (!canStartCheckout(subscription?.status)) return NextResponse.json({ error: "This organization already has an active subscription. Use Manage billing to change it." }, { status: 409 });
+
+        const payfast = payfastConfig();
+        if (payfast.enabled) {
+            const checkout = createPayFastCheckout({
+                organizationId: tenant.organizationId,
+                plan,
+                email: organization.email || undefined,
+                name: organization.name,
+                returnUrl: payfast.returnUrl,
+                cancelUrl: payfast.cancelUrl,
+                notifyUrl: payfast.notifyUrl,
+            });
+            const params = new URLSearchParams();
+            for (const [key, value] of Object.entries(checkout.payload)) {
+                if (value !== undefined && value !== null && String(value).length > 0) params.set(key, String(value));
+            }
+            return NextResponse.json({ url: `${checkout.url}?${params.toString()}` });
+        }
+
+        if (!stripe) return NextResponse.json({ error: "Billing is not configured." }, { status: 503 });
         let customerId = subscription?.providerCustomerId;
         if (!customerId) {
             const customer = await stripe.customers.create({ email: organization.email || undefined, name: organization.name, metadata: { organizationId: tenant.organizationId } });

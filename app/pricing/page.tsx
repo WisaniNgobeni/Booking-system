@@ -10,8 +10,8 @@ export const metadata = pageMetadata({
 });
 const plans = [
     { name: "Free", price: "0", description: "The essentials to put your booking page to work.", featured: false, features: ["Public business booking page", "Services, prices, and durations", "Availability and time-off settings", "Customer and appointment management"] },
-    { name: "Pro", price: "299", description: "More clarity for a business finding its rhythm.", featured: true, features: ["Everything in Free", "Business analytics", "Calendar tools", "A clearer view of your bookings"] },
-    { name: "Business", price: "599", description: "More room for a business with a growing team.", featured: false, features: ["Everything in Pro", "Team capabilities", "Staff and service assignments", "Tools for a shared schedule"] },
+    { name: "Pro", price: "249", description: "More clarity for a business finding its rhythm.", featured: true, features: ["Everything in Free", "Business analytics", "Calendar tools", "A clearer view of your bookings"] },
+    { name: "Business", price: "499", description: "More room for a business with a growing team.", featured: false, features: ["Everything in Pro", "Team capabilities", "Staff and service assignments", "Tools for a shared schedule"] },
 ];
 const pricingQuestions = [
     { question: "Can I start without paying?", answer: "Yes. The Free plan includes the core booking page and business management tools, with no monthly subscription price." },

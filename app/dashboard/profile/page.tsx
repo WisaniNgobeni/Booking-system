@@ -5,7 +5,7 @@ import { ArrowLeft, Check, CreditCard, Save } from "lucide-react";
 
 type Business = { name: string; slug: string; category?: string; description?: string; phone?: string; email?: string };
 type Billing = { plan: string; status: string; currentPeriodEnd?: string | null; cancelAtPeriodEnd?: boolean; trialEnd?: string | null; hasBillingAccount?: boolean } | null;
-const plans = [{ plan: "FREE", name: "Free", price: 0, description: "A simple booking presence for getting started." }, { plan: "PRO", name: "Pro", price: 299, description: "Analytics and calendar tools for growing businesses." }, { plan: "BUSINESS", name: "Business", price: 599, description: "Team capabilities for established businesses." }];
+const plans = [{ plan: "FREE", name: "Free", price: 0, description: "A simple booking presence for getting started." }, { plan: "PRO", name: "Pro", price: 249, description: "Analytics and calendar tools for growing businesses." }, { plan: "BUSINESS", name: "Business", price: 499, description: "Team capabilities for established businesses." }];
 
 export default function ProfilePage() {
     const [form, setForm] = useState<Business>({ name: "", slug: "", category: "", description: "", phone: "", email: "" });

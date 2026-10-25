@@ -25,7 +25,7 @@ export function canUseFeature(plan: string | null | undefined, status: Subscript
 export function planDetails() {
     return [
         { plan: "FREE" as const, name: "Free", priceZar: 0, description: "A simple booking presence for getting started." },
-        { plan: "PRO" as const, name: "Pro", priceZar: 299, description: "Analytics and calendar tools for growing businesses." },
-        { plan: "BUSINESS" as const, name: "Business", priceZar: 599, description: "Team capabilities for established businesses." },
+        { plan: "PRO" as const, name: "Pro", priceZar: 249, description: "Analytics and calendar tools for growing businesses." },
+        { plan: "BUSINESS" as const, name: "Business", priceZar: 499, description: "Team capabilities for established businesses." },
     ];
 }

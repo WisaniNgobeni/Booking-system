@@ -29,7 +29,7 @@ const structuredData = {
             operatingSystem: "Web",
             url: SITE_ORIGIN,
             description: "Online appointment booking and business management for South African service businesses.",
-            offers: { "@type": "AggregateOffer", priceCurrency: "ZAR", lowPrice: "0", highPrice: "599", offerCount: 3 },
+            offers: { "@type": "AggregateOffer", priceCurrency: "ZAR", lowPrice: "0", highPrice: "499", offerCount: 3 },
         },
     ],
 };
